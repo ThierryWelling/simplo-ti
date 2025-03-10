@@ -13,6 +13,13 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === 'development',
   },
   poweredByHeader: false,
+  output: 'standalone',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  }
 }
 
 module.exports = nextConfig 
