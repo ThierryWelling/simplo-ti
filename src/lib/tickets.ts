@@ -7,6 +7,7 @@ export interface Ticket {
   description: string;
   status: 'aberto' | 'em_andamento' | 'concluido' | 'cancelado';
   priority: 'baixa' | 'media' | 'alta' | 'urgente';
+  category: string;
   created_by: string;
   assigned_to: string | null;
   created_at: string;
