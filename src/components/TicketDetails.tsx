@@ -127,7 +127,18 @@ export default function TicketDetails({ id }: TicketDetailsProps) {
       setTicket(ticketData);
       
       const assigneeData = await getUserProfile(user.id);
-      setAssignee(assigneeData);
+      if (assigneeData) {
+        setAssignee({
+          id: assigneeData.id,
+          email: assigneeData.email,
+          name: assigneeData.name,
+          role: assigneeData.role,
+          department: assigneeData.department || undefined,
+          points: assigneeData.points || undefined
+        });
+      } else {
+        setAssignee(null);
+      }
       
       const updatesData = await getTicketUpdates(id);
       const updatesWithAuthor = await Promise.all(
