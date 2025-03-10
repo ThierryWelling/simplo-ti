@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FiUsers, FiClipboard, FiCheckCircle, FiAlertCircle, FiClock, FiTrendingUp, FiSettings } from 'react-icons/fi';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 import GlassmorphismContainer from './GlassmorphismContainer';
 import Link from 'next/link';
 
