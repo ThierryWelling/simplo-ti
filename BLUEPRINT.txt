@@ -1,0 +1,105 @@
+Visão Geral do Aplicativo
+
+Objetivo:
+Permitir que os colaboradores da empresa façam login e abram chamados para a equipe de TI, possibilitando que os chamados sejam enviados para todos os auxiliares (assistentes). O primeiro auxiliar a "pegar" o chamado o atribui automaticamente. O colaborador poderá, após o atendimento, avaliar o serviço (por exemplo, por meio de estrelas). O administrador (ADM) tem um painel para gerenciar acessos de auxiliares e administrar os pontos que eles acumulam pelo atendimento dos chamados.
+
+Público-Alvo:
+- Colaboradores: Criam chamados e avaliam o atendimento.
+- Auxiliares (Assistentes): Recebem e reivindicam chamados, ganham pontos por atendimento.
+- Administrador (ADM): Gerencia os acessos, pontos e monitoramento geral dos chamados.
+
+2. Stack Tecnológica
+- Next.js 14: Para performance excepcional, utilizando renderização híbrida (SSG/SSR) quando necessário.
+- React: Interface moderna e responsiva.
+- TypeScript: Código seguro e robusto.
+- Tailwind CSS: Estilização rápida, responsiva e personalizável .
+- Supabase: Banco de dados escalável, autenticação e funcionalidades em tempo real (real-time subscriptions) para notificações instantâneas.
+
+3. Principais Funcionalidades e Fluxo
+
+3.1. Autenticação e Controle de Acesso
+Login:
+- Utilização da autenticação do Supabase para login via e-mail/senha.
+
+Roles:
+- Colaborador: Apenas cria chamados e avalia o serviço.
+- Auxiliar: Recebe chamados em tempo real, reivindica e atende.
+- Administrador: Gerencia usuários (auxiliares) e pontos, além de ter visão completa de todos os chamados.
+
+3.2. Fluxo de Chamados
+Criação de Chamado:
+- Página/formulário para que o colaborador informe título, descrição (e talvez anexos).
+- Chamado criado com status "aberto" e associado ao usuário.
+
+Distribuição dos Chamados:
+- Ao ser criado, o chamado é publicado em tempo real para todos os auxiliares (por meio de Supabase real-time).
+- O auxiliar que clicar/abrir o chamado primeiro passa a ser o responsável.
+
+Atendimento e Avaliação:
+- Após o atendimento, o colaborador pode avaliar o serviço (por exemplo, de 1 a 5 estrelas).
+- O sistema atualiza os pontos do auxiliar conforme a avaliação.
+
+3.3. Painel Administrativo
+Gerenciamento de Acessos:
+- Criação e remoção de acessos para auxiliares.
+
+Administração de Pontos:
+- Visualização e ajuste dos pontos acumulados por cada auxiliar.
+
+Monitoramento:
+- Listagem e filtro dos chamados por status, data, avaliador, etc.
+
+3.4. Notificações e Atualizações em Tempo Real
+Supabase Realtime:
+- Inscrição em mudanças na tabela de chamados para notificar auxiliares instantaneamente.
+
+Alertas Visuais:
+- Indicadores e contadores na interface para novos chamados ou atualizações.
+
+7. Funcionalidades Adicionais e Pontos de Atenção
+
+7.1. Atualizações em Tempo Real
+Implementação:
+- Utilize o recurso de subscriptions do Supabase para escutar a tabela de tickets e atualizar a interface dos auxiliares assim que um novo chamado for criado ou alterado.
+
+7.2. Gestão de Roles e Segurança
+Proteção de Rotas:
+- Crie middlewares ou hooks que verifiquem a role do usuário antes de acessar determinadas páginas (ex.: admin).
+
+Validação e Sanitização:
+- Garanta que os dados enviados ao backend sejam validados tanto no cliente quanto no Supabase (através de triggers ou regras de RLS).
+
+7.3. Sistema de Pontuação e Avaliações
+Lógica de Pontuação:
+- Ao finalizar um chamado e receber uma avaliação (estrelas), o sistema deverá calcular e atualizar a pontuação do auxiliar.
+
+Histórico de Avaliações:
+- Mantenha um registro para futuras análises e feedback.
+
+7.4. Design Cyberpunk
+Tailwind CSS Customizado:
+- Personalize as cores (ex.: neon blue, neon green, backgrounds escuros) e fontes para criar um ambiente imersivo e moderno.
+
+Responsividade:
+- Garanta que todas as interfaces funcionem bem em dispositivos móveis e desktops.
+
+7.5. Melhorias e Escalabilidade
+Notificações Push ou via WebSocket:
+- Avalie a possibilidade de integrar notificações mais ativas (ex.: via Slack ou push notifications).
+
+Testes e Monitoramento:
+- Implemente testes unitários e de integração (por exemplo, com Jest e React Testing Library) para garantir a estabilidade da aplicação.
+
+Documentação e Deploy:
+- Documente o código e o fluxo de deploy (por exemplo, utilizando Vercel para Next.js) para facilitar manutenções futuras.
+
+8. Conclusão
+Este blueprint oferece uma visão completa para o desenvolvimento do app interno de chamados para a equipe de TI, integrando as melhores práticas em termos de tecnologia, design e segurança. A proposta contempla:
+
+- Fluxo de autenticação e controle de acesso robusto;
+- Distribuição e atualização em tempo real dos chamados;
+- Painel administrativo para gerenciamento de usuários e pontos;
+- Interface moderna e responsiva com uma pegada cyberpunk;
+- Utilização do Supabase para escalabilidade e funcionalidades em tempo real.
+
+Você pode ajustar ou expandir cada módulo conforme a necessidade da empresa, adicionando integrações (por exemplo, com sistemas de chat ou monitoramento) e funcionalidades extras para melhorar a experiência dos usuários. 
