@@ -22,7 +22,7 @@ export default function PageContainer({ children, title, subtitle }: PageContain
           )}
         </div>
       )}
-      <GlassmorphismContainer variant="metric" className="p-6">
+      <GlassmorphismContainer variant="default" className="p-6">
         {children}
       </GlassmorphismContainer>
     </div>
