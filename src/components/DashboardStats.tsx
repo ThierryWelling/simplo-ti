@@ -34,11 +34,17 @@ export default function DashboardStats() {
     if (typeof window !== 'undefined') {
       fetchStats();
     }
+    return () => {
+      setMounted(false);
+    };
   }, []);
 
   const fetchStats = async () => {
+    if (!mounted) return;
+    
     try {
       setLoading(true);
+      setError('');
       
       // Buscar total de usuários
       const { count: totalUsers, error: usersError } = await supabase
@@ -86,19 +92,25 @@ export default function DashboardStats() {
       
       if (priorityError) throw priorityError;
 
-      setStats({
-        totalUsers: totalUsers || 0,
-        totalTickets: totalTickets || 0,
-        openTickets: openTickets || 0,
-        inProgressTickets: inProgressTickets || 0,
-        completedTickets: completedTickets || 0,
-        highPriorityTickets: highPriorityTickets || 0
-      });
+      if (mounted) {
+        setStats({
+          totalUsers: totalUsers || 0,
+          totalTickets: totalTickets || 0,
+          openTickets: openTickets || 0,
+          inProgressTickets: inProgressTickets || 0,
+          completedTickets: completedTickets || 0,
+          highPriorityTickets: highPriorityTickets || 0
+        });
+      }
     } catch (error: any) {
       console.error('Erro ao buscar estatísticas:', error);
-      setError(error.message || 'Erro ao carregar estatísticas');
+      if (mounted) {
+        setError(error.message || 'Erro ao carregar estatísticas');
+      }
     } finally {
-      setLoading(false);
+      if (mounted) {
+        setLoading(false);
+      }
     }
   };
 
