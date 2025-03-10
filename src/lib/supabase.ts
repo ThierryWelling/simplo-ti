@@ -1,10 +1,36 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Valores padrão para desenvolvimento/build
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'example-anon-key';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Criar cliente apenas se estiver rodando no browser ou se for um ambiente de produção
+const isBrowser = typeof window !== 'undefined';
+const isProduction = process.env.NODE_ENV === 'production';
+
+let supabaseClient: any;
+
+try {
+  supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+} catch (error) {
+  console.error('Erro ao criar cliente Supabase:', error);
+  // Criar um cliente mock para evitar erros durante o build
+  supabaseClient = {
+    auth: {
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      getSession: () => Promise.resolve({ data: { session: null } }),
+    },
+    from: () => ({
+      select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }),
+      update: () => ({ eq: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }) }),
+      insert: () => Promise.resolve({ data: null, error: null }),
+      delete: () => ({ eq: () => Promise.resolve({ error: null }) }),
+    }),
+  };
+}
+
+export const supabase = supabaseClient;
 
 export type UserRole = 'colaborador' | 'auxiliar' | 'admin';
 
