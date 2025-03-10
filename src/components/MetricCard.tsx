@@ -15,7 +15,7 @@ interface MetricCardProps {
 
 export default function MetricCard({ title, value, icon: Icon, trend }: MetricCardProps) {
   return (
-    <GlassmorphismContainer variant="metric" className="p-6">
+    <GlassmorphismContainer variant="primary" className="p-6">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm uppercase tracking-wider text-zinc-600 font-medium mb-1">
