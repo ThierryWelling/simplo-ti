@@ -1,4 +1,9 @@
 import GlassmorphismContainer from './GlassmorphismContainer';
+import { Ticket } from '@/lib/tickets';
+
+interface TicketCardProps {
+  ticket: Ticket;
+}
 
 export default function TicketCard({ ticket }: TicketCardProps) {
   return (
