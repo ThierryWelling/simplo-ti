@@ -6,11 +6,11 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
   },
   images: {
     domains: ['localhost'],
-    unoptimized: process.env.NODE_ENV === 'development',
+    unoptimized: true,
   },
   poweredByHeader: false,
   output: 'standalone',

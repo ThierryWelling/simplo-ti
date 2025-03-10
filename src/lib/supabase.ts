@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 
-// Valores padrão para desenvolvimento/build
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'example-anon-key';
+// Garantir que as variáveis de ambiente estejam definidas
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Variáveis de ambiente do Supabase não estão definidas');
+}
 
 // Criar cliente apenas se estiver rodando no browser ou se for um ambiente de produção
 const isBrowser = typeof window !== 'undefined';
@@ -19,13 +23,18 @@ try {
   supabaseClient = {
     auth: {
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-      getSession: () => Promise.resolve({ data: { session: null } }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
+      signOut: () => Promise.resolve({ error: null }),
     },
     from: () => ({
       select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }),
       update: () => ({ eq: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }) }),
       insert: () => Promise.resolve({ data: null, error: null }),
       delete: () => ({ eq: () => Promise.resolve({ error: null }) }),
+    }),
+    channel: () => ({
+      on: () => ({ subscribe: () => Promise.resolve() }),
     }),
   };
 }
