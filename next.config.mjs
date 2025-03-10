@@ -20,11 +20,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  distDir: '.next-build',
+  distDir: '.next',
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,
     pagesBufferLength: 5,
   }
 }
 
-module.exports = nextConfig 
+export default nextConfig; 
