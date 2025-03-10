@@ -308,12 +308,14 @@ export default function AdminDashboard() {
       </div>
       
       {/* Modais */}
-      <UserEditModal 
-        user={selectedUser}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleSaveUser}
-      />
+      {selectedUser && (
+        <UserEditModal 
+          user={selectedUser}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSaveUser}
+        />
+      )}
       
       <UserCreateModal 
         isOpen={isCreateModalOpen}
