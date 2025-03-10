@@ -37,11 +37,33 @@ export default function TicketDetails({ id }: TicketDetailsProps) {
         setTicket(ticketData);
 
         const requesterData = await getUserProfile(ticketData.created_by);
-        setRequester(requesterData);
+        if (requesterData) {
+          setRequester({
+            id: requesterData.id,
+            email: requesterData.email,
+            name: requesterData.name,
+            role: requesterData.role,
+            department: requesterData.department || undefined,
+            points: requesterData.points || undefined
+          });
+        } else {
+          setRequester(null);
+        }
 
         if (ticketData.assigned_to) {
           const assigneeData = await getUserProfile(ticketData.assigned_to);
-          setAssignee(assigneeData);
+          if (assigneeData) {
+            setAssignee({
+              id: assigneeData.id,
+              email: assigneeData.email,
+              name: assigneeData.name,
+              role: assigneeData.role,
+              department: assigneeData.department || undefined,
+              points: assigneeData.points || undefined
+            });
+          } else {
+            setAssignee(null);
+          }
         }
 
         const updatesData = await getTicketUpdates(id);
