@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FiSave, FiUpload } from 'react-icons/fi';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 export default function PerfilPage() {
   const { user } = useAuth();

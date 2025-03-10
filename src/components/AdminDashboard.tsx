@@ -5,6 +5,7 @@ import { FiUsers, FiClipboard, FiCheckCircle, FiAlertCircle, FiClock, FiTrending
 import GlassmorphismContainer from './GlassmorphismContainer';
 import Link from 'next/link';
 import DashboardStats from './DashboardStats';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminDashboard() {
   return (
