@@ -24,9 +24,9 @@ export default function SettingsForm() {
     <div className="space-y-6">
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700">Tema</label>
+          <label className="block text-sm font-medium text-zinc-800">Tema</label>
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-zinc-300 focus:outline-none focus:border-zinc-400 sm:text-sm rounded-xl"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-800 sm:text-sm rounded-xl bg-white text-zinc-800"
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
           >
@@ -37,18 +37,18 @@ export default function SettingsForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-zinc-700">Notificações</label>
+          <label className="block text-sm font-medium text-zinc-800">Notificações</label>
           
           <div className="flex items-center">
             <input
               id="notifications"
               name="notifications"
               type="checkbox"
-              className="h-4 w-4 text-zinc-800 focus:ring-zinc-800 border-zinc-300 rounded-lg"
+              className="h-4 w-4 text-zinc-800 focus:ring-2 focus:ring-zinc-800 border-zinc-300 rounded"
               checked={notifications}
               onChange={(e) => setNotifications(e.target.checked)}
             />
-            <label htmlFor="notifications" className="ml-2 block text-sm text-zinc-700">
+            <label htmlFor="notifications" className="ml-2 block text-sm text-zinc-800">
               Receber notificações no navegador
             </label>
           </div>
@@ -58,20 +58,20 @@ export default function SettingsForm() {
               id="emailUpdates"
               name="emailUpdates"
               type="checkbox"
-              className="h-4 w-4 text-zinc-800 focus:ring-zinc-800 border-zinc-300 rounded-lg"
+              className="h-4 w-4 text-zinc-800 focus:ring-2 focus:ring-zinc-800 border-zinc-300 rounded"
               checked={emailUpdates}
               onChange={(e) => setEmailUpdates(e.target.checked)}
             />
-            <label htmlFor="emailUpdates" className="ml-2 block text-sm text-zinc-700">
+            <label htmlFor="emailUpdates" className="ml-2 block text-sm text-zinc-800">
               Receber atualizações por e-mail
             </label>
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="flex items-center justify-end space-x-3">
           <button
             type="button"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-800"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleSave}
             disabled={saving}
           >
@@ -92,7 +92,7 @@ export default function SettingsForm() {
           </button>
           
           {saved && (
-            <span className="ml-3 text-sm text-green-600">
+            <span className="text-sm text-green-600 font-medium">
               Configurações salvas com sucesso!
             </span>
           )}
