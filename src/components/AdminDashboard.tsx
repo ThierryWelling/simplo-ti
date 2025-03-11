@@ -5,15 +5,24 @@ import { FiUsers, FiClipboard, FiCheckCircle, FiAlertCircle, FiClock, FiTrending
 import GlassmorphismContainer from './GlassmorphismContainer';
 import Link from 'next/link';
 import DashboardStats from './DashboardStats';
-import { supabase } from '@/lib/supabase';
 
 export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <Suspense
         fallback={
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zinc-800"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <GlassmorphismContainer key={i} className="p-4">
+                <div className="animate-pulse flex items-center">
+                  <div className="rounded-xl bg-zinc-200 p-3 mr-4 w-12 h-12"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-zinc-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-6 bg-zinc-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </GlassmorphismContainer>
+            ))}
           </div>
         }
       >
@@ -24,26 +33,46 @@ export default function AdminDashboard() {
       <GlassmorphismContainer className="p-6">
         <h2 className="text-lg font-semibold text-zinc-800 mb-4">Ações Rápidas</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link
-            href="/admin/usuarios"
-            className="bg-white/50 hover:bg-white/80 p-4 rounded-xl flex items-center transition-all"
-          >
-            <FiUsers className="h-5 w-5 text-blue-600 mr-3" />
-            <span className="text-zinc-700">Gerenciar Usuários</span>
+          <Link href="/chamados/novo" className="block">
+            <GlassmorphismContainer className="p-4 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center">
+                <div className="rounded-xl bg-purple-100 p-3 mr-4">
+                  <FiClipboard className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-zinc-800">Novo Chamado</p>
+                  <p className="text-xs text-zinc-500">Criar um novo chamado</p>
+                </div>
+              </div>
+            </GlassmorphismContainer>
           </Link>
-          <Link
-            href="/chamados/gerenciar"
-            className="bg-white/50 hover:bg-white/80 p-4 rounded-xl flex items-center transition-all"
-          >
-            <FiClipboard className="h-5 w-5 text-purple-600 mr-3" />
-            <span className="text-zinc-700">Gerenciar Chamados</span>
+
+          <Link href="/usuarios" className="block">
+            <GlassmorphismContainer className="p-4 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center">
+                <div className="rounded-xl bg-blue-100 p-3 mr-4">
+                  <FiUsers className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-zinc-800">Usuários</p>
+                  <p className="text-xs text-zinc-500">Gerenciar usuários</p>
+                </div>
+              </div>
+            </GlassmorphismContainer>
           </Link>
-          <Link
-            href="/admin/configuracoes"
-            className="bg-white/50 hover:bg-white/80 p-4 rounded-xl flex items-center transition-all"
-          >
-            <FiSettings className="h-5 w-5 text-zinc-600 mr-3" />
-            <span className="text-zinc-700">Configurações</span>
+
+          <Link href="/configuracoes" className="block">
+            <GlassmorphismContainer className="p-4 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center">
+                <div className="rounded-xl bg-zinc-100 p-3 mr-4">
+                  <FiSettings className="h-6 w-6 text-zinc-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-zinc-800">Configurações</p>
+                  <p className="text-xs text-zinc-500">Ajustes do sistema</p>
+                </div>
+              </div>
+            </GlassmorphismContainer>
           </Link>
         </div>
       </GlassmorphismContainer>

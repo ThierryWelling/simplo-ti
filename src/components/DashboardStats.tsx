@@ -31,13 +31,14 @@ export default function DashboardStats() {
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== 'undefined') {
+    return () => setMounted(false);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
       fetchStats();
     }
-    return () => {
-      setMounted(false);
-    };
-  }, []);
+  }, [mounted]);
 
   const fetchStats = async () => {
     if (!mounted) return;
@@ -115,7 +116,11 @@ export default function DashboardStats() {
   };
 
   if (!mounted) {
-    return null;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zinc-800"></div>
+      </div>
+    );
   }
 
   if (loading) {
