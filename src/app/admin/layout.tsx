@@ -1,5 +1,6 @@
 "use client";
 
+import ClientLayout from '../ClientLayout';
 import AdminRoute from '@/components/AdminRoute';
 
 export default function AdminLayout({
@@ -7,5 +8,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminRoute>{children}</AdminRoute>;
+  return (
+    <ClientLayout>
+      <AdminRoute>{children}</AdminRoute>
+    </ClientLayout>
+  );
 } 

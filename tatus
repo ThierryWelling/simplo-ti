@@ -1,0 +1,5 @@
+[33m4da9f50[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Melhora configuração do build e inicialização do Supabase
+[33mb6a408f[m Atualiza tsconfig.json para incluir diretório de build personalizado
+[33m16a4839[m Melhoria na configuração do Supabase e Next.js para build
+[33m20020ba[m Adiciona instruções para testar o build após correções
+[33m163db60[m Configura next.config.js para resolver erros de exportação estática

@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="space-y-8">
       <h1 className="text-2xl font-bold text-zinc-800 mb-6">Painel Administrativo</h1>
       
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

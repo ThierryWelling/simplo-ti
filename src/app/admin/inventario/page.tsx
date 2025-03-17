@@ -18,7 +18,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="space-y-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-zinc-800">
           Inventário de Equipamentos
