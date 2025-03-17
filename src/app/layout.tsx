@@ -6,8 +6,15 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import Sidebar from '@/components/Sidebar'
 import GridBackground from '@/components/GridBackground'
 import { usePathname } from 'next/navigation'
+import { Toaster } from 'react-hot-toast'
+import { Metadata } from 'next'
 
 const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'Simplo TI',
+  description: 'Sistema de Gerenciamento de TI',
+}
 
 export default function RootLayout({
   children,
@@ -21,6 +28,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={inter.className}>
         <AuthProvider>
+          <Toaster position="top-right" />
           <GridBackground />
           {isAuthPage ? (
             children

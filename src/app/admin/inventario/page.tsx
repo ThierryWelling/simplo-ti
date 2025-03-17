@@ -1,18 +1,11 @@
-import { Metadata } from 'next';
+'use client';
+
 import EquipmentForm from '@/components/EquipmentForm';
 import EquipmentList from '@/components/EquipmentList';
-import { Toaster } from 'react-hot-toast';
-
-export const metadata: Metadata = {
-  title: 'Inventário | Painel Administrativo',
-  description: 'Gerenciamento de inventário de equipamentos',
-};
 
 export default function InventoryPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <Toaster position="top-right" />
-      
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
         Inventário de Equipamentos
       </h1>
