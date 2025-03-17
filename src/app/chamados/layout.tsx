@@ -8,11 +8,10 @@ interface ChamadosLayoutProps {
   children: ReactNode;
 }
 
-export default function ChamadosLayout({ children }: ChamadosLayoutProps) {
-  return (
-    <ClientLayout>
-      <EmailConfirmationAlert />
-      {children}
-    </ClientLayout>
-  );
+export default function ChamadosLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return children;
 } 
