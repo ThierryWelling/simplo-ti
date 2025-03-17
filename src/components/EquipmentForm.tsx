@@ -3,16 +3,18 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { FiUpload, FiX } from 'react-icons/fi';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EquipmentFormProps {
   onSuccess?: () => void;
 }
 
 export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState<'hardware' | 'software'>('hardware');
-  const [assetTag, setAssetTag] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [patrimonyNumber, setPatrimonyNumber] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -56,7 +58,7 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
       if (image) {
         const fileExt = image.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `equipment-images/${fileName}`;
+        const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('equipment-images')
@@ -73,14 +75,15 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
 
       // Inserir equipamento no banco
       const { error } = await supabase
-        .from('equipments')
+        .from('equipment')
         .insert([
           {
             name,
             description,
-            type,
-            asset_tag: assetTag || null,
-            image_url: imageUrl
+            company_name: companyName,
+            patrimony_number: patrimonyNumber,
+            image_url: imageUrl,
+            created_by: user?.id
           }
         ]);
 
@@ -91,8 +94,8 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
       // Limpar formulário
       setName('');
       setDescription('');
-      setType('hardware');
-      setAssetTag('');
+      setCompanyName('');
+      setPatrimonyNumber('');
       setImage(null);
       setImagePreview(null);
 
@@ -161,7 +164,7 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
       {/* Nome */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-zinc-800">
-          Nome
+          Nome do Equipamento
         </label>
         <input
           type="text"
@@ -183,57 +186,41 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          required
           rows={3}
           className="mt-1 block w-full px-3 py-2 text-black bg-white border border-zinc-200 rounded-lg"
           placeholder="Descreva as características do equipamento..."
         />
       </div>
 
-      {/* Tipo */}
+      {/* Nome da Empresa */}
       <div>
-        <label className="block text-sm font-medium text-zinc-800">
-          Tipo
-        </label>
-        <div className="mt-2 flex gap-3">
-          <button
-            type="button"
-            onClick={() => setType('hardware')}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
-              ${type === 'hardware'
-                ? 'bg-zinc-800 border-zinc-800 text-white'
-                : 'border-zinc-300 text-zinc-700 hover:bg-zinc-50'
-              }`}
-          >
-            Hardware
-          </button>
-          <button
-            type="button"
-            onClick={() => setType('software')}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
-              ${type === 'software'
-                ? 'bg-zinc-800 border-zinc-800 text-white'
-                : 'border-zinc-300 text-zinc-700 hover:bg-zinc-50'
-              }`}
-          >
-            Software
-          </button>
-        </div>
-      </div>
-
-      {/* TAG do Ativo */}
-      <div>
-        <label htmlFor="assetTag" className="block text-sm font-medium text-zinc-800">
-          TAG do Ativo
-          <span className="text-zinc-500 font-normal"> (opcional)</span>
+        <label htmlFor="companyName" className="block text-sm font-medium text-zinc-800">
+          Nome da Empresa
         </label>
         <input
           type="text"
-          id="assetTag"
-          value={assetTag}
-          onChange={(e) => setAssetTag(e.target.value)}
+          id="companyName"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          required
           className="mt-1 block w-full px-3 py-2 text-black bg-white border border-zinc-200 rounded-lg"
-          placeholder="Ex: NB-001"
+          placeholder="Ex: Empresa XYZ"
+        />
+      </div>
+
+      {/* Número do Patrimônio */}
+      <div>
+        <label htmlFor="patrimonyNumber" className="block text-sm font-medium text-zinc-800">
+          Número do Patrimônio
+        </label>
+        <input
+          type="text"
+          id="patrimonyNumber"
+          value={patrimonyNumber}
+          onChange={(e) => setPatrimonyNumber(e.target.value)}
+          required
+          className="mt-1 block w-full px-3 py-2 text-black bg-white border border-zinc-200 rounded-lg"
+          placeholder="Ex: PAT-001"
         />
       </div>
 
