@@ -56,21 +56,37 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
 
       // Upload da imagem se existir
       if (image) {
-        const fileExt = image.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        try {
+          const fileExt = image.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('equipment-images')
-          .upload(filePath, image);
+          // Upload do arquivo
+          const { error: uploadError } = await supabase.storage
+            .from('equipment-images')
+            .upload(fileName, image, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
-        if (uploadError) throw uploadError;
+          if (uploadError) {
+            console.error('Erro no upload:', uploadError);
+            throw uploadError;
+          }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('equipment-images')
-          .getPublicUrl(filePath);
+          // Obter URL pública
+          const { data } = await supabase.storage
+            .from('equipment-images')
+            .getPublicUrl(fileName);
 
-        imageUrl = publicUrl;
+          imageUrl = data.publicUrl;
+        } catch (uploadError) {
+          console.error('Erro no upload da imagem:', uploadError);
+          setFeedback({ 
+            type: 'error', 
+            message: 'Erro ao fazer upload da imagem. Por favor, tente novamente.' 
+          });
+          return;
+        }
       }
 
       // Inserir equipamento no banco
@@ -87,7 +103,10 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
           }
         ]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao inserir equipamento:', error);
+        throw error;
+      }
 
       setFeedback({ type: 'success', message: 'Equipamento cadastrado com sucesso!' });
       
@@ -104,7 +123,10 @@ export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
       }
     } catch (error) {
       console.error('Erro:', error);
-      setFeedback({ type: 'error', message: 'Erro ao cadastrar equipamento' });
+      setFeedback({ 
+        type: 'error', 
+        message: 'Erro ao cadastrar equipamento. Por favor, tente novamente.' 
+      });
     } finally {
       setSubmitting(false);
     }
