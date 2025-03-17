@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import PageContainer from '@/components/PageContainer';
 import AdminDashboard from '@/components/AdminDashboard';
 import AuxiliaryScoreBoard from '@/components/AuxiliaryScoreBoard';
 
@@ -19,11 +18,9 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <PageContainer>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-800"></div>
-        </div>
-      </PageContainer>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-800"></div>
+      </div>
     );
   }
 
@@ -32,24 +29,22 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <PageContainer>
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <h1 className="text-2xl font-bold text-zinc-800 mb-6">Painel Administrativo</h1>
+    <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <h1 className="text-2xl font-bold text-zinc-800 mb-6">Painel Administrativo</h1>
+      
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Métricas e gráficos principais - ocupa 2/3 da tela em telas grandes */}
+        <div className="xl:col-span-2">
+          <AdminDashboard />
+        </div>
         
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Métricas e gráficos principais - ocupa 2/3 da tela em telas grandes */}
-          <div className="xl:col-span-2">
-            <AdminDashboard />
-          </div>
-          
-          {/* Ranking de auxiliares - ocupa 1/3 da tela em telas grandes */}
-          <div className="xl:col-span-1">
-            <div className="sticky top-6">
-              <AuxiliaryScoreBoard />
-            </div>
+        {/* Ranking de auxiliares - ocupa 1/3 da tela em telas grandes */}
+        <div className="xl:col-span-1">
+          <div className="sticky top-6">
+            <AuxiliaryScoreBoard />
           </div>
         </div>
       </div>
-    </PageContainer>
+    </div>
   );
 } 
