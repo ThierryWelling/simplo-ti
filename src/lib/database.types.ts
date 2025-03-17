@@ -9,36 +9,65 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      profiles: {
+      equipment: {
         Row: {
           id: string
           name: string
-          email: string
-          role: 'colaborador' | 'auxiliar' | 'admin'
-          department: string | null
-          points: number | null
+          description: string | null
+          company_name: string
+          patrimony_number: string
+          image_url: string | null
           created_at: string
-          updated_at: string | null
+          updated_at: string
+          created_by: string | null
         }
         Insert: {
-          id: string
+          id?: string
           name: string
-          email: string
-          role?: 'colaborador' | 'auxiliar' | 'admin'
-          department?: string | null
-          points?: number | null
+          description?: string | null
+          company_name: string
+          patrimony_number: string
+          image_url?: string | null
           created_at?: string
-          updated_at?: string | null
+          updated_at?: string
+          created_by?: string | null
         }
         Update: {
           id?: string
           name?: string
-          email?: string
-          role?: 'colaborador' | 'auxiliar' | 'admin'
-          department?: string | null
-          points?: number | null
+          description?: string | null
+          company_name?: string
+          patrimony_number?: string
+          image_url?: string | null
           created_at?: string
-          updated_at?: string | null
+          updated_at?: string
+          created_by?: string | null
+        }
+      }
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          name: string
+          role: 'colaborador' | 'auxiliar' | 'admin'
+          department?: string
+          points?: number
+        }
+        Insert: {
+          id: string
+          email: string
+          name: string
+          role?: 'colaborador' | 'auxiliar' | 'admin'
+          department?: string
+          points?: number
+        }
+        Update: {
+          id?: string
+          email?: string
+          name?: string
+          role?: 'colaborador' | 'auxiliar' | 'admin'
+          department?: string
+          points?: number
         }
       }
       tickets: {
@@ -46,43 +75,37 @@ export interface Database {
           id: string
           title: string
           description: string
-          status: 'aberto' | 'em_andamento' | 'concluido' | 'cancelado'
-          priority: 'baixa' | 'media' | 'alta'
-          created_by: string
-          assigned_to: string | null
+          status: 'aberto' | 'em_andamento' | 'concluido'
+          priority?: string
+          category?: string
           created_at: string
-          updated_at: string | null
-          closed_at: string | null
-          department: string | null
-          points: number | null
+          created_by: string
+          assigned_to?: string
+          rating?: number
         }
         Insert: {
           id?: string
           title: string
           description: string
-          status?: 'aberto' | 'em_andamento' | 'concluido' | 'cancelado'
-          priority?: 'baixa' | 'media' | 'alta'
-          created_by: string
-          assigned_to?: string | null
+          status?: 'aberto' | 'em_andamento' | 'concluido'
+          priority?: string
+          category?: string
           created_at?: string
-          updated_at?: string | null
-          closed_at?: string | null
-          department?: string | null
-          points?: number | null
+          created_by: string
+          assigned_to?: string
+          rating?: number
         }
         Update: {
           id?: string
           title?: string
           description?: string
-          status?: 'aberto' | 'em_andamento' | 'concluido' | 'cancelado'
-          priority?: 'baixa' | 'media' | 'alta'
-          created_by?: string
-          assigned_to?: string | null
+          status?: 'aberto' | 'em_andamento' | 'concluido'
+          priority?: string
+          category?: string
           created_at?: string
-          updated_at?: string | null
-          closed_at?: string | null
-          department?: string | null
-          points?: number | null
+          created_by?: string
+          assigned_to?: string
+          rating?: number
         }
       }
       ticket_updates: {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { FiMenu, FiX, FiHome, FiUser, FiClipboard, FiUsers, FiSettings, FiLogOut, FiChevronRight, FiChevronLeft } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiUser, FiClipboard, FiUsers, FiSettings, FiLogOut, FiChevronRight, FiChevronLeft, FiBox } from 'react-icons/fi';
 
 interface SidebarProps {
   onToggle?: (isOpen: boolean) => void;
@@ -129,28 +129,53 @@ export default function Sidebar({ onToggle }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <ul className="space-y-2">
           {user?.role === 'admin' && (
-            <li>
-              <Link
-                href="/admin/dashboard" 
-                className={`
-                  flex items-center p-2
-                  transition-all duration-300
-                  border border-zinc-300
-                  hover:bg-zinc-100
-                  rounded-xl
-                  ${isActive('/admin/dashboard') 
-                    ? 'bg-zinc-200 text-zinc-800' 
-                    : 'text-zinc-600 hover:text-zinc-800'
-                  }
-                  ${!isOpen && 'justify-center'}
-                `}
-              >
-                <FiHome size={20} />
-                <span className={`ml-3 uppercase tracking-wider text-sm transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-                  Dashboard
-                </span>
-              </Link>
-            </li>
+            <>
+              <li>
+                <Link
+                  href="/admin/dashboard" 
+                  className={`
+                    flex items-center p-2
+                    transition-all duration-300
+                    border border-zinc-300
+                    hover:bg-zinc-100
+                    rounded-xl
+                    ${isActive('/admin/dashboard') 
+                      ? 'bg-zinc-200 text-zinc-800' 
+                      : 'text-zinc-600 hover:text-zinc-800'
+                    }
+                    ${!isOpen && 'justify-center'}
+                  `}
+                >
+                  <FiHome size={20} />
+                  <span className={`ml-3 uppercase tracking-wider text-sm transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+                    Dashboard
+                  </span>
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/admin/inventario"
+                  className={`
+                    flex items-center p-2
+                    transition-all duration-300
+                    border border-zinc-300
+                    hover:bg-zinc-100
+                    rounded-xl
+                    ${isActive('/admin/inventario')
+                      ? 'bg-zinc-200 text-zinc-800'
+                      : 'text-zinc-600 hover:text-zinc-800'
+                    }
+                    ${!isOpen && 'justify-center'}
+                  `}
+                >
+                  <FiBox size={20} />
+                  <span className={`ml-3 uppercase tracking-wider text-sm transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+                    Inventário
+                  </span>
+                </Link>
+              </li>
+            </>
           )}
 
           {user?.role === 'colaborador' && (
