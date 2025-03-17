@@ -2,169 +2,189 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { createTicket } from '@/lib/tickets';
-import PageContainer from '@/components/PageContainer';
-import GlassmorphismContainer from '@/components/GlassmorphismContainer';
+import EquipmentSelector from '@/components/EquipmentSelector';
+import { FiAlertCircle } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
-export default function NovoChamado() {
-  const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [prioridade, setPrioridade] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+interface Equipment {
+  id: string;
+  name: string;
+  description: string;
+  type: 'hardware' | 'software';
+  asset_tag?: string;
+}
+
+export default function NewTicketPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('low');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
-      setError('Você precisa estar logado para criar um chamado');
+      toast.error('Você precisa estar logado para abrir um chamado');
       return;
     }
-    
-    setLoading(true);
-    setError('');
-    setSuccess(false);
+
+    if (!selectedEquipment) {
+      toast.error('Selecione um equipamento');
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
-      await createTicket(
-        titulo,
-        descricao,
-        categoria,
-        prioridade as 'baixa' | 'media' | 'alta' | 'urgente',
-        user.id
-      );
-      
-      setSuccess(true);
-      
-      // Limpar o formulário
-      setTitulo('');
-      setDescricao('');
-      setCategoria('');
-      setPrioridade('');
-      
-      // Redirecionar após 2 segundos
-      setTimeout(() => {
-        router.push('/chamados');
-      }, 2000);
-    } catch (error: any) {
-      setError(error.message || 'Erro ao criar chamado');
+      const { data, error } = await supabase
+        .from('tickets')
+        .insert([
+          {
+            title,
+            description,
+            priority,
+            equipment_id: selectedEquipment.id,
+            user_id: user.id,
+            status: 'open'
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success('Chamado aberto com sucesso!');
+      router.push('/chamados');
+    } catch (error) {
+      console.error('Erro:', error);
+      toast.error('Erro ao abrir chamado');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-zinc-800">Criar Novo Chamado</h1>
+    <div className="flex gap-6">
+      {/* Formulário */}
+      <div className="flex-1">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-zinc-800">Abrir Novo Chamado</h1>
+          <p className="mt-2 text-zinc-600">
+            Selecione o equipamento com problema e descreva o que está acontecendo
+          </p>
         </div>
 
-        <GlassmorphismContainer className="p-6">
-          {success && (
-            <div className="bg-green-100/50 border border-green-400 text-green-700 px-4 py-3 rounded-xl relative mb-6">
-              <span className="block sm:inline">Chamado criado com sucesso! Redirecionando...</span>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Equipamento selecionado */}
+          {selectedEquipment && (
+            <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-zinc-800">{selectedEquipment.name}</h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">{selectedEquipment.description}</p>
+                  {selectedEquipment.asset_tag && (
+                    <p className="text-xs text-zinc-400 mt-0.5">TAG: {selectedEquipment.asset_tag}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedEquipment(null)}
+                  className="text-sm text-zinc-600 hover:text-zinc-800"
+                >
+                  Alterar
+                </button>
+              </div>
             </div>
           )}
-          
-          {error && (
-            <div className="bg-red-100/50 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative mb-6">
-              <span className="block sm:inline">{error}</span>
+
+          {/* Título */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-zinc-800">
+              Título
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex: Computador não liga"
+            />
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-zinc-800">
+              Descrição do Problema
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              rows={4}
+              className="mt-1 block w-full px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-200"
+              placeholder="Descreva detalhadamente o problema que está enfrentando..."
+            />
+          </div>
+
+          {/* Prioridade */}
+          <div>
+            <label className="block text-sm font-medium text-zinc-800">
+              Prioridade
+            </label>
+            <div className="mt-2 flex gap-3">
+              {['low', 'medium', 'high'].map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPriority(p as 'low' | 'medium' | 'high')}
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
+                    ${priority === p
+                      ? 'bg-zinc-100 border-zinc-300 text-zinc-800'
+                      : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                    }`}
+                >
+                  {p === 'low' && 'Baixa'}
+                  {p === 'medium' && 'Média'}
+                  {p === 'high' && 'Alta'}
+                </button>
+              ))}
             </div>
-          )}
-          
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="titulo" className="block text-sm font-medium text-zinc-700">
-                Título
-              </label>
-              <input
-                type="text"
-                name="titulo"
-                id="titulo"
-                className="mt-1 w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:border-zinc-400"
-                placeholder="Descreva brevemente o problema"
-                required
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="descricao" className="block text-sm font-medium text-zinc-700">
-                Descrição
-              </label>
-              <textarea
-                name="descricao"
-                id="descricao"
-                rows={5}
-                className="mt-1 w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:border-zinc-400"
-                placeholder="Descreva detalhadamente o problema"
-                required
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="categoria" className="block text-sm font-medium text-zinc-700">
-                Categoria
-              </label>
-              <select
-                id="categoria"
-                name="categoria"
-                className="mt-1 w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:border-zinc-400"
-                required
-                value={categoria}
-                onChange={(e) => setCategoria(e.target.value)}
-              >
-                <option value="">Selecione uma categoria</option>
-                <option value="hardware">Hardware</option>
-                <option value="software">Software</option>
-                <option value="rede">Rede</option>
-                <option value="email">E-mail</option>
-                <option value="impressora">Impressora</option>
-                <option value="outro">Outro</option>
-              </select>
-            </div>
-            
-            <div>
-              <label htmlFor="prioridade" className="block text-sm font-medium text-zinc-700">
-                Prioridade
-              </label>
-              <select
-                id="prioridade"
-                name="prioridade"
-                className="mt-1 w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:border-zinc-400"
-                required
-                value={prioridade}
-                onChange={(e) => setPrioridade(e.target.value)}
-              >
-                <option value="">Selecione a prioridade</option>
-                <option value="baixa">Baixa</option>
-                <option value="media">Média</option>
-                <option value="alta">Alta</option>
-                <option value="urgente">Urgente</option>
-              </select>
-            </div>
-            
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={loading}
-              >
-                {loading ? 'Criando...' : 'Criar Chamado'}
-              </button>
-            </div>
-          </form>
-        </GlassmorphismContainer>
+          </div>
+
+          {/* Botão de envio */}
+          <div className="flex items-center justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-800"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !selectedEquipment}
+              className="px-4 py-2 text-sm font-medium text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? 'Abrindo chamado...' : 'Abrir Chamado'}
+            </button>
+          </div>
+        </form>
       </div>
-    </PageContainer>
+
+      {/* Seletor de equipamentos */}
+      {!selectedEquipment && (
+        <div className="w-80 flex-shrink-0">
+          <EquipmentSelector onSelect={setSelectedEquipment} />
+        </div>
+      )}
+    </div>
   );
 } 
