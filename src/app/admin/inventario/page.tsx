@@ -4,13 +4,17 @@ import EquipmentForm from '@/components/EquipmentForm';
 import EquipmentList from '@/components/EquipmentList';
 import CsvUploader from '@/components/CsvUploader';
 import { useState } from 'react';
-import { FiPlus } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 export default function InventoryPage() {
   const [showForm, setShowForm] = useState(false);
 
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
+
   const handleSuccess = () => {
-    setShowForm(false);
+    // O componente EquipmentList irá atualizar automaticamente através do useEffect
   };
 
   return (
@@ -20,11 +24,20 @@ export default function InventoryPage() {
           Inventário de Equipamentos
         </h1>
         <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onClick={toggleForm}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
         >
-          <FiPlus className="mr-2" />
-          {showForm ? 'Fechar Formulário' : 'Adicionar Equipamento'}
+          {showForm ? (
+            <>
+              <FiChevronUp />
+              Ocultar Formulário
+            </>
+          ) : (
+            <>
+              <FiChevronDown />
+              Adicionar Equipamento
+            </>
+          )}
         </button>
       </div>
 
@@ -37,7 +50,9 @@ export default function InventoryPage() {
         </div>
       )}
 
-      <CsvUploader onSuccess={handleSuccess} />
+      <div className="mb-8">
+        <CsvUploader onSuccess={handleSuccess} />
+      </div>
 
       <div>
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
