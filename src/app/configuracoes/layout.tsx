@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FiUser, FiSettings, FiBell } from 'react-icons/fi';
-import ClientLayout from '../ClientLayout';
 import GlassmorphismContainer from '@/components/GlassmorphismContainer';
 
 export default function ConfiguracoesLayout({
@@ -63,5 +62,5 @@ export default function ConfiguracoesLayout({
     </div>
   );
 
-  return <ClientLayout>{content}</ClientLayout>;
+  return content;
 } 
