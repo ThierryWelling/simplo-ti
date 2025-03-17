@@ -110,4 +110,46 @@ export async function subscribeToTickets(callback: (ticket: Ticket) => void) {
       }
     )
     .subscribe();
-} 
+}
+
+// Criar bucket para imagens de equipamentos se não existir
+export async function createEquipmentImagesBucket() {
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const bucketExists = buckets?.some((bucket: { name: string }) => bucket.name === 'equipment-images');
+
+  if (!bucketExists) {
+    // Criar o bucket
+    const { data, error } = await supabase.storage.createBucket('equipment-images', {
+      public: true,
+      allowedMimeTypes: ['image/*'],
+      fileSizeLimit: '10MB'
+    });
+
+    if (error) {
+      console.error('Erro ao criar bucket:', error);
+      return;
+    }
+
+    // Definir políticas de acesso
+    const { error: policyError } = await supabase.storage.from('equipment-images').createSignedUrl(
+      'policy.sql',
+      60,
+      {
+        transform: {
+          width: 800,
+          height: 600,
+          resize: 'contain'
+        }
+      }
+    );
+
+    if (policyError) {
+      console.error('Erro ao definir políticas:', policyError);
+    } else {
+      console.log('Bucket equipment-images criado com sucesso e políticas definidas');
+    }
+  }
+}
+
+// Chamar a função quando o módulo for carregado
+createEquipmentImagesBucket(); 

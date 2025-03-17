@@ -1,172 +1,250 @@
+'use client';
+
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { EquipmentFormData } from '@/types/inventory';
-import { toast } from 'react-hot-toast';
-import { FiUpload } from 'react-icons/fi';
+import { FiUpload, FiX } from 'react-icons/fi';
 
-export default function EquipmentForm({ onSuccess }: { onSuccess: () => void }) {
-  const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [formData, setFormData] = useState<EquipmentFormData>({
-    name: '',
-    description: '',
-    company_name: '',
-    patrimony_number: '',
-  });
+interface EquipmentFormProps {
+  onSuccess?: () => void;
+}
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+export default function EquipmentForm({ onSuccess }: EquipmentFormProps) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [type, setType] = useState<'hardware' | 'software'>('hardware');
+  const [assetTag, setAssetTag] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        setFeedback({ type: 'error', message: 'A imagem deve ter no máximo 10MB' });
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        setFeedback({ type: 'error', message: 'O arquivo deve ser uma imagem' });
+        return;
+      }
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setFeedback(null);
     }
+  };
+
+  const removeImage = () => {
+    setImage(null);
+    setImagePreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
+    setFeedback(null);
 
     try {
-      let image_url = '';
-      
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
+      let imageUrl = null;
+
+      // Upload da imagem se existir
+      if (image) {
+        const fileExt = image.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const filePath = `equipment-images/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
           .from('equipment-images')
-          .upload(fileName, imageFile);
+          .upload(filePath, image);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
           .from('equipment-images')
-          .getPublicUrl(fileName);
-          
-        image_url = publicUrl;
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
       }
 
+      // Inserir equipamento no banco
       const { error } = await supabase
-        .from('equipment')
-        .insert([{ ...formData, image_url }]);
+        .from('equipments')
+        .insert([
+          {
+            name,
+            description,
+            type,
+            asset_tag: assetTag || null,
+            image_url: imageUrl
+          }
+        ]);
 
       if (error) throw error;
 
-      toast.success('Equipamento adicionado com sucesso!');
-      setFormData({
-        name: '',
-        description: '',
-        company_name: '',
-        patrimony_number: '',
-      });
-      setImageFile(null);
-      onSuccess();
+      setFeedback({ type: 'success', message: 'Equipamento cadastrado com sucesso!' });
+      
+      // Limpar formulário
+      setName('');
+      setDescription('');
+      setType('hardware');
+      setAssetTag('');
+      setImage(null);
+      setImagePreview(null);
+
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
-      console.error('Erro ao adicionar equipamento:', error);
-      toast.error('Erro ao adicionar equipamento. Tente novamente.');
+      console.error('Erro:', error);
+      setFeedback({ type: 'error', message: 'Erro ao cadastrar equipamento' });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+      {/* Feedback */}
+      {feedback && (
+        <div className={`p-4 rounded-lg ${
+          feedback.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+        }`}>
+          {feedback.message}
+        </div>
+      )}
+
+      {/* Imagem */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Nome do Equipamento
+        <label className="block text-sm font-medium text-zinc-800 mb-2">
+          Imagem do Equipamento
+        </label>
+        <div className="flex items-center gap-4">
+          {imagePreview ? (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-24 h-24 object-cover rounded-lg border border-zinc-200"
+              />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute -top-2 -right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
+              >
+                <FiX size={16} />
+              </button>
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-zinc-300 rounded-lg cursor-pointer hover:border-zinc-400 transition-colors">
+              <FiUpload className="text-zinc-400" size={24} />
+              <span className="mt-2 text-xs text-zinc-500">Upload</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+          )}
+          <div className="text-xs text-zinc-500">
+            <p>Formatos aceitos: JPG, PNG, GIF</p>
+            <p>Tamanho máximo: 10MB</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Nome */}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-zinc-800">
+          Nome
         </label>
         <input
           type="text"
           id="name"
-          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
-          value={formData.name}
-          onChange={handleInputChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full px-3 py-2 text-black bg-white border border-zinc-200 rounded-lg"
+          placeholder="Ex: Notebook Dell Latitude"
         />
       </div>
 
+      {/* Descrição */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="description" className="block text-sm font-medium text-zinc-800">
           Descrição
         </label>
         <textarea
           id="description"
-          name="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           required
-          value={formData.description}
-          onChange={handleInputChange}
           rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full px-3 py-2 text-black bg-white border border-zinc-200 rounded-lg"
+          placeholder="Descreva as características do equipamento..."
         />
       </div>
 
+      {/* Tipo */}
       <div>
-        <label htmlFor="company_name" className="block text-sm font-medium text-gray-700">
-          Nome da Empresa
+        <label className="block text-sm font-medium text-zinc-800">
+          Tipo
         </label>
-        <input
-          type="text"
-          id="company_name"
-          name="company_name"
-          required
-          value={formData.company_name}
-          onChange={handleInputChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="patrimony_number" className="block text-sm font-medium text-gray-700">
-          Número de Patrimônio
-        </label>
-        <input
-          type="text"
-          id="patrimony_number"
-          name="patrimony_number"
-          required
-          value={formData.patrimony_number}
-          onChange={handleInputChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Imagem do Equipamento
-        </label>
-        <div className="mt-1 flex items-center">
-          <label
-            htmlFor="image"
-            className="cursor-pointer flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        <div className="mt-2 flex gap-3">
+          <button
+            type="button"
+            onClick={() => setType('hardware')}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
+              ${type === 'hardware'
+                ? 'bg-zinc-800 border-zinc-800 text-white'
+                : 'border-zinc-300 text-zinc-700 hover:bg-zinc-50'
+              }`}
           >
-            <FiUpload className="mr-2" />
-            {imageFile ? 'Trocar imagem' : 'Carregar imagem'}
-          </label>
-          <input
-            type="file"
-            id="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="hidden"
-          />
-          {imageFile && (
-            <span className="ml-2 text-sm text-gray-500">
-              {imageFile.name}
-            </span>
-          )}
+            Hardware
+          </button>
+          <button
+            type="button"
+            onClick={() => setType('software')}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
+              ${type === 'software'
+                ? 'bg-zinc-800 border-zinc-800 text-white'
+                : 'border-zinc-300 text-zinc-700 hover:bg-zinc-50'
+              }`}
+          >
+            Software
+          </button>
         </div>
       </div>
 
+      {/* TAG do Ativo */}
+      <div>
+        <label htmlFor="assetTag" className="block text-sm font-medium text-zinc-800">
+          TAG do Ativo
+          <span className="text-zinc-500 font-normal"> (opcional)</span>
+        </label>
+        <input
+          type="text"
+          id="assetTag"
+          value={assetTag}
+          onChange={(e) => setAssetTag(e.target.value)}
+          className="mt-1 block w-full px-3 py-2 text-black bg-white border border-zinc-200 rounded-lg"
+          placeholder="Ex: NB-001"
+        />
+      </div>
+
+      {/* Botão de envio */}
       <div className="flex justify-end">
         <button
           type="submit"
-          disabled={loading}
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          disabled={submitting}
+          className="px-4 py-2 text-sm font-medium text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
         >
-          {loading ? 'Adicionando...' : 'Adicionar Equipamento'}
+          {submitting ? 'Cadastrando...' : 'Cadastrar Equipamento'}
         </button>
       </div>
     </form>
